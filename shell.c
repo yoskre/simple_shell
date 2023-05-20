@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define BUFFERSIZE 1024
 /**
  * main - start here
  * @argc: argument count
@@ -17,24 +16,33 @@ int main(int argc, char **argv)
 {
 	int state = 1;
 	char *prompt = "$ ";
-	char buffer[BUFFERSIZE];
+	char *buffer = NULL;
 	ssize_t bytesread;
+	size_t len = 0;
 
 	(void) argc;
 	(void) argv;
 	while (state)
 	{
+		if (buffer != NULL)
+		{
+			free(buffer);
+			buffer = NULL;
+			len = 0;
+		}
 		write(STDOUT_FILENO, prompt, strlen(prompt) * sizeof(char));
-		bytesread = read(STDIN_FILENO, buffer, BUFFERSIZE);
+		bytesread = getline(&buffer, &len, stdin);
 		if (bytesread < 0)
+		{
+			free(buffer);
 			return (1);
+		}
 		buffer[bytesread - 1] = '\0';
 		state = handle(buffer);
 		if (state == -1)
-		{
-			write(STDERR_FILENO, buffer, strlen(buffer) * sizeof(char));
-			write(STDERR_FILENO, ": No such file or directory\n", 28 * sizeof(char));
-		}
+			error(buffer);
 	}
+	if (buffer != NULL)
+		free(buffer);
 	return (0);
 }

@@ -2,5 +2,6 @@
 #define MAIN_H
 
 int handle(char *buffer);
+void error(char *buffer);
 
 #endif

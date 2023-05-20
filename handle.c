@@ -4,7 +4,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+/**
+ * freevector - free vector
+ * @vector: vector
+ *
+ * Return: void
+ */
+void freevector(char **vector)
+{
+	if (vector != NULL)
+		free(vector);
+}
 /**
  * vectorize - vectorize a buffer
  * @buffer: buffer
@@ -30,13 +40,13 @@ char **vectorize(char *buffer)
 	}
 	c++;
 	vector = malloc((c + 1) * sizeof(char *));
-	if (!vector)
+	if (vector == NULL)
 	{
 		free(vector);
 		return (NULL);
 	}
 	vector[c] = NULL;
-	*vector = strtok(buffer, " ");
+	vector[0] = strtok(buffer, " ");
 	for (i = 1; i < c; i++)
 		vector[i] = strtok(NULL, " ");
 	return (vector);
@@ -57,10 +67,13 @@ int handle(char *buffer)
 	if (*buffer == '\0')
 		return (1);
 	vector = vectorize(buffer);
-	if (!vector)
+	if (vector == NULL)
 		return (-1);
 	if (!strcmp("exit", *vector))
+	{
+		freevector(vector);
 		return (0);
+	}
 	if (**vector == '/' || **vector == '.')
 	{
 		pid_t pid = fork();
@@ -72,5 +85,6 @@ int handle(char *buffer)
 		else
 			return (-1);
 	}
+	freevector(vector);
 	return (1);
 }
