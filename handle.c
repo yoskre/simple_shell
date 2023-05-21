@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include<sys/wait.h>
 /**
  * freevector - free vector
  * @vector: vector
@@ -61,7 +62,7 @@ int handle(char *buffer)
 {
 	/* will function like main's argv */
 	char **vector;
-
+	
 	while (*buffer == ' ' && *buffer != '\0')
 		buffer++;
 	if (*buffer == '\0')
@@ -74,17 +75,27 @@ int handle(char *buffer)
 		freevector(vector);
 		return (0);
 	}
-	if (**vector == '/' || **vector == '.')
+	if (access(*vector, X_OK) == 0)
 	{
 		pid_t pid = fork();
 
 		if (pid == 0)
-			;
+		{
+			if (execve(vector[0], vector, environ) == -1)
+				exit(-1);
+			exit(1);
+		}
 		else if (pid > 0)
-			;
+		{
+			wait(NULL);
+			return (1);
+		}
 		else
+		{
+			freevector(vector);
 			return (-1);
+		}
 	}
 	freevector(vector);
-	return (1);
+	return (-1);
 }

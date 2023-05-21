@@ -3,5 +3,6 @@
 
 int handle(char *buffer);
 void error(char *buffer);
+extern char **environ;
 
 #endif

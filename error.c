@@ -15,6 +15,6 @@ void error(char *buffer)
 {
 	char *error = ": No such file or directory\n";
 
-	perror(buffer);
-	perror(error);
+	write(STDERR_FILENO, buffer, strlen(buffer));
+	write(STDERR_FILENO, error, strlen(error));
 }

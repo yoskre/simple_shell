@@ -40,7 +40,10 @@ int main(int argc, char **argv)
 		buffer[bytesread - 1] = '\0';
 		state = handle(buffer);
 		if (state == -1)
+		{
 			error(buffer);
+			state = 1;
+		}
 	}
 	if (buffer != NULL)
 		free(buffer);
