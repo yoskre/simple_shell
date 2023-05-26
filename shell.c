@@ -1,51 +1,38 @@
 #include "main.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 /**
  * main - start here
- * @argc: argument count
- * @argv: argument vectors
  *
- * Return: 0 if good, 1 if error
+ * Return: normal, end or fault
  */
-int main(int argc, char **argv)
+int main(void)
 {
-	int state = 1;
-	char *prompt = "$ ";
+	int state = normal;
 	char *buffer = NULL;
 	ssize_t bytesread;
 	size_t len = 0;
 
-	(void) argc;
-	(void) argv;
 	while (state)
 	{
+		print_prompt();
+		bytesread = getline(&buffer, &len, stdin);
+		if (bytesread == fault)
+		{
+			free(buffer);
+			exit(fault);
+		}
+		buffer[bytesread - 1] = '\0';
+		state = handle_buffer(buffer);
+		if (state == fault)
+		{
+			print_error(buffer);
+			state = normal;
+		}
 		if (buffer != NULL)
 		{
 			free(buffer);
 			buffer = NULL;
-			len = 0;
 		}
-		write(STDOUT_FILENO, prompt, strlen(prompt) * sizeof(char));
-		bytesread = getline(&buffer, &len, stdin);
-		if (bytesread < 0)
-		{
-			free(buffer);
-			return (1);
-		}
-		buffer[bytesread - 1] = '\0';
-		state = handle(buffer);
-		if (state == -1)
-		{
-			error(buffer);
-			state = 1;
-		}
+		len = 0;
 	}
-	if (buffer != NULL)
-		free(buffer);
-	return (0);
+	exit(end);
 }
